@@ -4,7 +4,7 @@ fixture `Getting Started`
   .page `http://127.0.0.1:3000`
 
 test('My first test', async t => {
-  const menuButton = Selector('.bg-cl-transparent.brdr-none.inline-flex.p15.icon.bg-cl-secondary.pointer')
+  const menuButton = Selector('[data-testid=menuButton]')
   const sidebarMenu = Selector('.sidebar-menu')
 
   await t

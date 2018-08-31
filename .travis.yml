@@ -31,15 +31,12 @@ before_script:
   - fluxbox >/dev/null 2>&1 &
 
 stages:
-  - build
   - test
 
 jobs:
   include:
-    # - yarn test:unit
-    - stage: build
-      script:
-        - yarn dev &
+    - script:
+      - yarn dev &
     - stage: test
       if: branch IN (e2e/cafe/install)
       script:
