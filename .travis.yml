@@ -38,8 +38,8 @@ jobs:
   include:
     # - yarn test:unit
     - stage: build
-    #  script:
-    #    - yarn dev &
+      script:
+        - yarn dev &
     - stage: test
       if: branch IN (e2e/cafe/install)
       script:
