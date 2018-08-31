@@ -39,7 +39,8 @@
     "test:e2e": "cypress open",
     "test:e2e:ci": "cypress run",
     "lint": "eslint --ext .js,.vue core src",
-    "lerna": "lerna"
+    "lerna": "lerna",
+    "cafe:time": "testcafe chrome:headless -e ./tests/cafeTime/"
   },
   "dependencies": {
     "ajv": "^5.2.2",
@@ -106,6 +107,7 @@
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.1.0",
+    "eslint-plugin-testcafe": "^0.2.1",
     "eslint-plugin-vue": "^4.5.0",
     "eslint-plugin-vue-storefront": "^0.0.1",
     "file-loader": "^1.1.11",
@@ -134,6 +136,7 @@
     "sinon": "^6.1.4",
     "sinon-chai": "^3.2.0",
     "sw-precache-webpack-plugin": "^0.11.5",
+    "testcafe": "^0.21.1",
     "ts-loader": "^4.4.2",
     "typescript": "^3.0.1",
     "url-loader": "^1.0.1",
