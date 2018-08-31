@@ -40,7 +40,7 @@
     "test:e2e:ci": "cypress run",
     "lint": "eslint --ext .js,.vue core src",
     "lerna": "lerna",
-    "cafe:time": "testcafe chrome:headless -e ./tests/cafeTime/"
+    "cafe:time": "testcafe chrome -e ./tests/cafeTime/"
   },
   "dependencies": {
     "ajv": "^5.2.2",
