@@ -1,7 +1,7 @@
 <template>
   <div class="inline-flex relative dropdown"
        data-testid="accountButton"
-       @click="goToAccount">
+       @click.self="goToAccount">
     <button
       type="button"
       class="bg-cl-transparent brdr-none p0"
@@ -27,8 +27,8 @@
 </template>
 
 <script>
-import { i18n } from 'core/lib/i18n'
-import AccountIcon from 'core/components/blocks/Header/AccountIcon'
+import i18n from '@vue-storefront/i18n'
+import AccountIcon from '@vue-storefront/core/components/blocks/Header/AccountIcon'
 
 export default {
   mixins: [AccountIcon],
@@ -54,6 +54,10 @@ export default {
 $color-icon-hover: color(secondary, $colors-background);
 
 .dropdown {
+
+  button {
+    pointer-events: none;
+  }
 
   .dropdown-content {
     display: none;

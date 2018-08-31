@@ -1,15 +1,13 @@
-// 3rd party dependecies
+import Vue from 'vue'
 import toString from 'lodash-es/toString'
 
-// Core dependecies
 import config from 'config'
-import EventBus from 'core/plugins/event-bus'
+import EventBus from '@vue-storefront/core/plugins/event-bus'
 import { baseFilterProductsQuery, buildFilterProductsQuery } from '@vue-storefront/store/helpers'
-import { htmlDecode } from 'core/filters/html-decode'
-import { i18n } from 'core/lib/i18n'
+import { htmlDecode } from '@vue-storefront/core/filters/html-decode'
+import i18n from '@vue-storefront/i18n'
 
-// Core mixins
-import Composite from 'core/mixins/composite'
+import Composite from '@vue-storefront/core/mixins/composite'
 
 export default {
   name: 'Category',
@@ -75,8 +73,8 @@ export default {
       perPage: 50,
       sort: config.entities.productList.sort,
       filters: config.products.defaultFilters,
-      includeFields: config.entities.optimize && global.$VS.isSSR ? config.entities.productList.includeFields : null,
-      excludeFields: config.entities.optimize && global.$VS.isSSR ? config.entities.productList.excludeFields : null,
+      includeFields: config.entities.optimize && Vue.prototype.$isServer ? config.entities.productList.includeFields : null,
+      excludeFields: config.entities.optimize && Vue.prototype.$isServer ? config.entities.productList.excludeFields : null,
       append: false
     }
   },
@@ -84,10 +82,10 @@ export default {
     return new Promise((resolve, reject) => {
       console.log('Entering asyncData for Category root ' + new Date())
       const defaultFilters = config.products.defaultFilters
-      store.dispatch('category/list', { includeFields: config.entities.optimize && global.$VS.isSSR ? config.entities.category.includeFields : null }).then((categories) => {
+      store.dispatch('category/list', { includeFields: config.entities.optimize && Vue.prototype.$isServer ? config.entities.category.includeFields : null }).then((categories) => {
         store.dispatch('attribute/list', { // load filter attributes for this specific category
           filterValues: defaultFilters, // TODO: assign specific filters/ attribute codes dynamicaly to specific categories
-          includeFields: config.entities.optimize && global.$VS.isSSR ? config.entities.attribute.includeFields : null
+          includeFields: config.entities.optimize && Vue.prototype.$isServer ? config.entities.attribute.includeFields : null
         }).then((attrs) => {
           store.dispatch('category/single', { key: 'slug', value: route.params.slug }).then((parentCategory) => {
             let query = store.state.category.current_product_query
@@ -115,7 +113,11 @@ export default {
   created () {
     this.$bus.$on('filter-changed-category', this.onFilterChanged)
     this.$bus.$on('list-change-sort', (param) => { this.onSortOrderChanged(param) })
-    if (!global.$VS.isSSR && this.lazyLoadProductsOnscroll) {
+    if (config.usePriceTiers) {
+      this.$bus.$on('user-after-loggedin', this.onUserPricesRefreshed)
+      this.$bus.$on('user-after-logout', this.onUserPricesRefreshed)
+    }
+    if (!Vue.prototype.$isServer && this.lazyLoadProductsOnscroll) {
       window.addEventListener('scroll', () => {
         this.bottom = this.bottomVisible()
       })
@@ -123,6 +125,10 @@ export default {
   },
   beforeDestroy () {
     this.$bus.$off('filter-changed-category', this.onFilterChanged)
+    if (config.usePriceTiers) {
+      this.$bus.$off('user-after-loggedin', this.onUserPricesRefreshed)
+      this.$bus.$off('user-after-logout', this.onUserPricesRefreshed)
+    }
   },
   methods: {
     bottomVisible () {
@@ -174,7 +180,8 @@ export default {
         let filterQr = buildFilterProductsQuery(this.category, this.filters.chosen)
         this.$store.state.category.current_product_query = Object.assign(this.$store.state.category.current_product_query, {
           sort: param.attribute + ':' + param.direction,
-          searchProductQuery: filterQr
+          searchProductQuery: filterQr,
+          append: false
         })
         this.$store.dispatch('category/products', this.$store.state.category.current_product_query).then((res) => {
         })
@@ -203,7 +210,8 @@ export default {
             perPage: this.pagination.perPage,
             store: this.$store,
             route: this.$route,
-            append: false
+            append: false,
+            populateAggregations: true
           })
           if (!query.searchProductQuery) {
             query.searchProductQuery = searchProductQuery
@@ -211,6 +219,22 @@ export default {
           this.$store.dispatch('category/products', this.$store.state.category.current_product_query)
           EventBus.$emitFilter('category-after-load', { store: this.$store, route: this.$route })
         }
+      })
+    },
+    onUserPricesRefreshed () {
+      const defaultFilters = config.products.defaultFilters
+      this.$store.dispatch('category/single', {
+        key: 'slug',
+        value: this.$route.params.slug
+      }).then((parentCategory) => {
+        let query = this.$store.state.category.current_product_query
+        if (!query.searchProductQuery) {
+          query = Object.assign(query, {
+            searchProductQuery: baseFilterProductsQuery(parentCategory, defaultFilters),
+            skipCache: true
+          })
+        }
+        this.$store.dispatch('category/products', query)
       })
     }
   },
