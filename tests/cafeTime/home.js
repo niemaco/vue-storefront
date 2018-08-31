@@ -1,7 +1,7 @@
 import { Selector } from 'testcafe'
 
 fixture `Getting Started`
-  .page `http://127.0.0.1:3000`
+  .page `http://test.vuestorefront.io`
 
 test('My first test', async t => {
   const menuButton = Selector('.bg-cl-transparent.brdr-none.inline-flex.p15.icon.bg-cl-secondary.pointer')

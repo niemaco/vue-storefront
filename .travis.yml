@@ -12,7 +12,6 @@ addons:
 language: node_js
 node_js:
   - "8"
-  - "10"
 
 cache:
   yarn: true
@@ -40,7 +39,7 @@ jobs:
     # - yarn test:unit
     - stage: build
       script:
-        - yarn build
+        - yarn dev
     - stage: test
       if: branch IN (e2e/cafe/install)
       script:
